@@ -1,0 +1,73 @@
+#!/bin/bash
+
+echo ""
+echo " RawaSub is a automated Subdomain finder script by B4GG3R"
+echo " Usage: rawasub target.com"
+echo ""
+
+# Here is used sources which dont used API key
+echo " Target: $1"
+
+mkdir $1
+
+curl -s -k "https://dns.bufferover.run/dns?q="$1"" | grep -oP '"\K[^"\047]+(?=["\047])' | grep '\.'$1'' | awk -F',' '{print $2}' >> $1/unfinished
+echo " buffoverdns is done"
+
+curl -s -k "https://api.certspotter.com/v1/issuances?domain="$1"&expand=dns_names&expand=issuer" | grep -oP '"\K[^"\047]+(?=["\047])' | grep '\.'$1'' | sort -u >> $1/unfinished
+echo " certspotter is done"
+
+curl -s -k "https://crt.sh/?q="$1"&output=json" | grep -oP '"\K[^"\047]+(?=["\047])' | grep '\.'$1'' | grep -Ev -e '\*' | awk -F'\' '{print $1}' | sort -u >> $1/unfinished
+echo " crt.sh is done"
+
+curl -s -k "https://api.hackertarget.com/hostsearch/?q="$1"" | awk -F',' '{print $1}' >> $1/unfinished
+echo " hackertarget is done"
+
+for uppercase in $(echo $1 | tr '[:lower:]' '[:upper:]'); do curl -s "https://www.threatcrowd.org/searchApi/v2/domain/report/?domain="$1"" | grep -oP '"\K[^"\047]+(?=["\047])' | grep -e '\.'$uppercase''; done >> $1/unfinished
+curl -s -k "https://www.threatcrowd.org/searchApi/v2/domain/report/?domain="$1"" | grep -oP '"\K[^"\047]+(?=["\047])' | grep '\.$1' >> $1/unfinished
+echo " threadcrowd is done"
+
+curl -s -k "https://urlscan.io/api/v1/search/?q=domain:"$1"" | grep -oP '"\K[^"\047]+(?=["\047])' | grep '\.'$1'' | grep -v http | sort -u >> $1/unfinished
+echo " urlscan is done"
+
+curl -s -k "https://sonar.omnisint.io/subdomains/"$1"" | grep -oP '"\K[^"\047]+(?=["\047])' | grep '\.'$1'' >> $1/unfinished
+echo " omnisint is done"
+
+curl -s -k "https://tls.bufferover.run/dns?q="$1"" | grep -oP '"\K[^"\047]+(?=["\047])' | grep '\.'$1'' | awk -F',' '{print $4}' >> $1/unfinished
+echo " bufferover is done"
+
+curl -s -k "https://api.sublist3r.com/search.php?domain="$1"" | grep -oP '"\K[^"\047]+(?=["\047])' | grep '\.'$1'' >> $1/unfinished
+echo " sublist3r is done"
+
+curl -s -k "https://api.threatminer.org/v2/domain.php?q="$1"" | grep -oP '"\K[^"\047]+(?=["\047])' | grep '\.'$1'' >> $1/unfinished
+echo " threatminer is done"
+
+curl -s -k "https://otx.alienvault.com/api/v1/indicators/domain/"$1"/passive_dns" | grep -oP '"\K[^"\047]+(?=["\047])' | grep '\.'$1'' | grep -v hostname | sort -u >> $1/unfinished
+echo " alienvault is done"
+
+curl -s -k "https://jldc.me/anubis/subdomains/"$1"" | grep -oP '"\K[^"\047]+(?=["\047])' | grep '\.'$1'' | sort -u >> $1/unfinished
+echo " anubis is done"
+
+curl -s -k "https://rapiddns.io/subdomain/"$1"?full=1" | grep '\.'$1'' | awk -F'<td>' '{print $2}' | awk -F'<' '{print $1}' | sort -u >> $1/unfinished
+echo " rapiddns is done"
+
+curl -s -k 'https://spyse.com/target/domain/'$1'/subdomain-list?target=domain&search_params=%5B%7B%22name%22%3A%7B%22operator%22%3A%22ends%22,%22value%22%3A%22.'$1'%22%7D%7D%5D' -H 'authority: spyse.com' -H 'upgrade-insecure-requests: 1'   -H 'user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36 Edg/94.0.992.50' -H 'accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9' -H 'accept-language: en-US,en;q=0.9'  | grep -oP '"\K[^"\047]+(?=["\047])' | grep $1 | grep -Ev -e ' ' -e '/' -e 'CN=' -e 'u002F' -e '@' -e ^.$1 | sort -u >> $1/unfinished
+echo " spyse is done"
+
+# The following sources using API key, just replace APISECRET with your API key
+
+for sub in $(curl -s -k "https://api.securitytrails.com/v1/domain/"$1"/subdomains" -H 'apikey: APIKEY' | grep -v ':' | grep -oP '"\K[^"\047]+(?=["\047])'); do echo $sub.$1; done >> $1/unfinished
+echo " securitytrails is done"
+
+curl -s -k "https://www.virustotal.com/vtapi/v2/domain/report?domain="$1"&apikey=APIKEY" | grep -oP '"\K[^"\047]+(?=["\047])' | grep '\.'$1'' | grep -v 'Admin ' >> $1/unfinished
+echo " virustotal is done"
+
+for sub in $(curl -s -k -u 'USERNAME:APIKEY' 'https://api.passivetotal.org/v2/enrichment/subdomains?query='$1'' | awk -F'"subdomains":' '{print $2}' | grep -oP '"\K[^"\047]+(?=["\047])' | grep -Ev -e ',' -e '\['); do echo $sub.$1; done >> $1/unfinished
+echo " passivetotal is done"
+
+curl -s -k "https://subdomains.whoisxmlapi.com/api/v1?apiKey=APIKEY&domainName="$1"" | grep -oP '"\K[^"\047]+(?=["\047])' | grep '\.'$1'' >> $1/unfinished
+echo " whoisxmlapi is done"
+
+cat $1/unfinished | grep $1 | grep -v ' ' | sort -u >> $1/subs
+rm $1/unfinished
+
+for count in $(cat $1/subs | wc -l); do echo " Found $count subdomains for $1"; done
