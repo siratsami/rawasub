@@ -55,19 +55,19 @@ echo " spyse is done"
 
 # The following sources using API key, just replace APISECRET with your API key
 
-for sub in $(curl -s -k "https://api.securitytrails.com/v1/domain/"$1"/subdomains" -H 'apikey: APIKEY' | grep -v ':' | grep -oP '"\K[^"\047]+(?=["\047])'); do echo $sub.$1; done >> $1/unfinished
-echo " securitytrails is done"
+#for sub in $(curl -s -k "https://api.securitytrails.com/v1/domain/"$1"/subdomains" -H 'apikey: APIKEY' | grep -v ':' | grep -oP '"\K[^"\047]+(?=["\047])'); do echo $sub.$1; done >> $1/unfinished
+#echo " securitytrails is done"
 
-curl -s -k "https://www.virustotal.com/vtapi/v2/domain/report?domain="$1"&apikey=APIKEY" | grep -oP '"\K[^"\047]+(?=["\047])' | grep '\.'$1'' | grep -v 'Admin ' >> $1/unfinished
-echo " virustotal is done"
+#curl -s -k "https://www.virustotal.com/vtapi/v2/domain/report?domain="$1"&apikey=APIKEY" | grep -oP '"\K[^"\047]+(?=["\047])' | grep '\.'$1'' | grep -v 'Admin ' >> $1/unfinished
+#echo " virustotal is done"
 
-for sub in $(curl -s -k -u 'USERNAME:APIKEY' 'https://api.passivetotal.org/v2/enrichment/subdomains?query='$1'' | awk -F'"subdomains":' '{print $2}' | grep -oP '"\K[^"\047]+(?=["\047])' | grep -Ev -e ',' -e '\['); do echo $sub.$1; done >> $1/unfinished
-echo " passivetotal is done"
+#for sub in $(curl -s -k -u 'USERNAME:APIKEY' 'https://api.passivetotal.org/v2/enrichment/subdomains?query='$1'' | awk -F'"subdomains":' '{print $2}' | grep -oP '"\K[^"\047]+(?=["\047])' | grep -Ev -e ',' -e '\['); do echo $sub.$1; done >> $1/unfinished
+#echo " passivetotal is done"
 
-curl -s -k "https://subdomains.whoisxmlapi.com/api/v1?apiKey=APIKEY&domainName="$1"" | grep -oP '"\K[^"\047]+(?=["\047])' | grep '\.'$1'' >> $1/unfinished
-echo " whoisxmlapi is done"
+#curl -s -k "https://subdomains.whoisxmlapi.com/api/v1?apiKey=APIKEY&domainName="$1"" | grep -oP '"\K[^"\047]+(?=["\047])' | grep '\.'$1'' >> $1/unfinished
+#echo " whoisxmlapi is done"
 
-cat $1/unfinished | grep $1 | grep -v ' ' | sort -u >> $1/subs
-rm $1/unfinished
+#cat $1/unfinished | grep $1 | grep -v ' ' | sort -u >> $1/subs
+#rm $1/unfinished
 
-for count in $(cat $1/subs | wc -l); do echo " Found $count subdomains for $1"; done
+#for count in $(cat $1/subs | wc -l); do echo " Found $count subdomains for $1"; done
