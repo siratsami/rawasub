@@ -65,7 +65,7 @@ echo " spyse is done"
 #curl -s -k "https://subdomains.whoisxmlapi.com/api/v1?apiKey=APIKEY&domainName="$1"" | grep -oP '"\K[^"\047]+(?=["\047])' | grep '\.'$1'' >> $1
 #echo " whoisxmlapi is done"
 
-cat $1 | grep $1 | grep -v ' ' | sort -u >> $1-subs
+cat $1 | grep $1 | grep -v ' ' | tr '[:upper:]' '[:lower:]' | sort -u >> $1-subs
 rm $1
 
 for count in $(cat $1-subs | wc -l); do echo " Found $count subdomains for $1"; done
